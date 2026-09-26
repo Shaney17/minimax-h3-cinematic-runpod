@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.DS_Store
+*.safetensors
+*.pth
+*.gguf
+*.mp4
+*.png
