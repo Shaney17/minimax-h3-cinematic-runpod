@@ -1,0 +1,10 @@
+.git
+__pycache__
+*.pyc
+*.png
+*.mp4
+*.safetensors
+*.pth
+*.gguf
+*.zip
+*.tar
