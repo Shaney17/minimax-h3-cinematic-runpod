@@ -15,9 +15,14 @@ Open `http://127.0.0.1:8765` and provide:
 
 1. A Runpod API key. It stays in the browser tab and is forwarded by the local
    server to the fixed endpoint `xjh0wwhkto13ky`; it is not written to disk.
-2. A **ComfyUI Export (API)** JSON for this workflow. The included
-   `workflow/cinematic_ui.json` is a UI graph and cannot be submitted directly.
-3. The three reference images for LoadImage nodes 28 (subject 1), 29 (subject 2),
+2. A **ComfyUI Export (API)** JSON for this workflow. Create this file once and
+   reuse it. The Docker image currently contains `workflow/cinematic_ui.json`,
+   which is a UI graph for opening/editing in ComfyUI; the worker needs the
+   executable API graph in every request. Building the image does not convert
+   between these formats.
+3. The prompt. The UI preloads the original story from node 190 in the included
+   workflow. You can edit it; the request replaces that node's `value` input.
+4. The three reference images for LoadImage nodes 28 (subject 1), 29 (subject 2),
    and 30 (environment). The interface uploads them as Base64 files and updates
    those node filenames automatically.
 
