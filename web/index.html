@@ -18,7 +18,7 @@
         <section class="intro">
           <div class="eyebrow">CINEMATIC WORKFLOW <span class="eyebrow-line"></span> THREE REFERENCES</div>
           <h1>Biến những khung hình<br /><em>thành câu chuyện.</em></h1>
-          <p>Chọn workflow API và ba ảnh tham chiếu. Giao diện sẽ đóng gói request, gửi đến worker Runpod và theo dõi video cho bạn.</p>
+          <p>Chọn workflow API một lần, nhập prompt và ba ảnh tham chiếu. Giao diện sẽ gửi request đến worker Runpod và theo dõi video cho bạn.</p>
         </section>
 
         <div class="workspace">
@@ -33,7 +33,7 @@
             </section>
 
             <section class="step">
-              <div class="step-head"><span class="step-number">02</span><div><h2>Workflow API</h2><p>Chọn bản <strong>Export (API)</strong> từ ComfyUI, không phải bản lưu giao diện.</p></div></div>
+              <div class="step-head"><span class="step-number">02</span><div><h2>Workflow API</h2><p>Chọn bản <strong>Export (API)</strong> từ ComfyUI. Đây là bước thiết lập mẫu chạy cho worker.</p></div></div>
               <label class="dropzone workflow-zone" for="workflow-file">
                 <input id="workflow-file" type="file" accept=".json,application/json" />
                 <span class="upload-icon">{ }</span>
@@ -43,8 +43,17 @@
               <div id="workflow-alert" class="inline-alert" hidden></div>
             </section>
 
+            <section class="step prompt-step">
+              <div class="step-head"><span class="step-number">03</span><div><h2>Prompt video</h2><p>Mô tả câu chuyện, nhân vật, cảnh quay và âm thanh bạn muốn tạo.</p></div></div>
+              <div class="prompt-field">
+                <label class="sr-only" for="prompt-text">Prompt video</label>
+                <textarea id="prompt-text" rows="8" placeholder="Đang tải prompt gốc từ workflow…" spellcheck="true"></textarea>
+                <div class="prompt-footer"><span>Giá trị này thay thế prompt trong workflow khi gửi request.</span><button id="reset-prompt" type="button" class="text-button">Khôi phục prompt gốc</button><span id="prompt-count">0 ký tự</span></div>
+              </div>
+            </section>
+
             <section class="step images-step">
-              <div class="step-head"><span class="step-number">03</span><div><h2>Ảnh tham chiếu</h2><p>Mỗi ảnh sẽ được gắn vào đúng nút LoadImage trong workflow.</p></div></div>
+              <div class="step-head"><span class="step-number">04</span><div><h2>Ảnh tham chiếu</h2><p>Mỗi ảnh sẽ được gắn vào đúng nút LoadImage trong workflow.</p></div></div>
               <div class="image-grid">
                 <div class="image-card">
                   <div class="image-card-head"><span class="image-index">I</span><div><h3>Nhân vật 1</h3><p>Chân dung / trang phục</p></div><span class="node-pill">Nút <b id="node-1">28</b></span></div>
