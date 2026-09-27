@@ -15,6 +15,7 @@ import handler_base
 OUTPUT_DIR = Path(os.environ.get("H3_OUTPUT_DIR", "/comfyui/output"))
 MAX_INLINE_VIDEO_BYTES = int(os.environ.get("H3_MAX_INLINE_VIDEO_BYTES", "8000000"))
 VIDEO_SUFFIXES = {".mp4", ".webm", ".mov", ".mkv"}
+STARTUP_LOG = Path("/tmp/h3-worker.log")
 
 
 def _video_snapshot() -> dict[str, tuple[int, int]]:
@@ -58,6 +59,12 @@ def _encode_video(path: Path, job_id: str) -> dict:
 def handler(job: dict) -> dict:
     before = _video_snapshot()
     result = handler_base.handler(job)
+
+    if isinstance(result, dict) and "not reachable" in str(result.get("error", "")).lower():
+        try:
+            result["startup_log_tail"] = STARTUP_LOG.read_text(errors="replace")[-12000:]
+        except OSError as exc:
+            result["startup_log_tail"] = f"Không đọc được log khởi động: {exc}"
 
     details = result.get("details", []) if isinstance(result, dict) else []
     if any("Workflow execution error" in str(x) for x in details):
