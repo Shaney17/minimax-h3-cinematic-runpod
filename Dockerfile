@@ -1,3 +1,4 @@
+# Trigger Runpod rebuild with ComfyUI startup diagnostics.
 FROM runpod/worker-comfyui:5.10.0-base
 
 ENV PYTHONUNBUFFERED=1
