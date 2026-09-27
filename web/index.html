@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MiniMax H3 Cinematic Studio</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <div class="brand"><span class="brand-mark">H3</span><span>MINIMAX <b>STUDIO</b></span></div>
+        <div class="endpoint"><span class="endpoint-dot"></span> RUNPOD SERVERLESS <span class="endpoint-id">xjh0wwhkto13ky</span></div>
+      </header>
+
+      <main>
+        <section class="intro">
+          <div class="eyebrow">CINEMATIC WORKFLOW <span class="eyebrow-line"></span> THREE REFERENCES</div>
+          <h1>Biến những khung hình<br /><em>thành câu chuyện.</em></h1>
+          <p>Chọn workflow API và ba ảnh tham chiếu. Giao diện sẽ đóng gói request, gửi đến worker Runpod và theo dõi video cho bạn.</p>
+        </section>
+
+        <div class="workspace">
+          <form id="request-form" class="panel form-panel" novalidate>
+            <section class="step">
+              <div class="step-head"><span class="step-number">01</span><div><h2>Kết nối Runpod</h2><p>API key chỉ dùng để gửi request qua máy này, không lưu vào tệp.</p></div></div>
+              <div class="key-row">
+                <label class="sr-only" for="api-key">Runpod API key</label>
+                <input id="api-key" type="password" placeholder="Dán Runpod API key" autocomplete="off" spellcheck="false" required />
+                <button id="toggle-key" type="button" class="small-button" aria-label="Hiện API key">Hiện</button>
+              </div>
+            </section>
+
+            <section class="step">
+              <div class="step-head"><span class="step-number">02</span><div><h2>Workflow API</h2><p>Chọn bản <strong>Export (API)</strong> từ ComfyUI, không phải bản lưu giao diện.</p></div></div>
+              <label class="dropzone workflow-zone" for="workflow-file">
+                <input id="workflow-file" type="file" accept=".json,application/json" />
+                <span class="upload-icon">{ }</span>
+                <span class="drop-text"><b id="workflow-title">Chọn tệp workflow API</b><small id="workflow-detail">.json · các nút LoadImage sẽ được nhận diện tự động</small></span>
+                <span class="browse">Chọn tệp</span>
+              </label>
+              <div id="workflow-alert" class="inline-alert" hidden></div>
+            </section>
+
+            <section class="step images-step">
+              <div class="step-head"><span class="step-number">03</span><div><h2>Ảnh tham chiếu</h2><p>Mỗi ảnh sẽ được gắn vào đúng nút LoadImage trong workflow.</p></div></div>
+              <div class="image-grid">
+                <div class="image-card">
+                  <div class="image-card-head"><span class="image-index">I</span><div><h3>Nhân vật 1</h3><p>Chân dung / trang phục</p></div><span class="node-pill">Nút <b id="node-1">28</b></span></div>
+                  <label class="image-drop" for="image-1"><input id="image-1" type="file" accept="image/png,image/jpeg,image/webp" /><img id="preview-1" alt="Xem trước ảnh nhân vật 1" hidden /><span id="image-label-1" class="image-placeholder"><span>＋</span> Chọn ảnh</span></label>
+                  <div id="image-meta-1" class="image-meta">PNG, JPG hoặc WebP</div>
+                </div>
+                <div class="image-card">
+                  <div class="image-card-head"><span class="image-index">II</span><div><h3>Nhân vật 2</h3><p>Chân dung / hình dáng</p></div><span class="node-pill">Nút <b id="node-2">29</b></span></div>
+                  <label class="image-drop" for="image-2"><input id="image-2" type="file" accept="image/png,image/jpeg,image/webp" /><img id="preview-2" alt="Xem trước ảnh nhân vật 2" hidden /><span id="image-label-2" class="image-placeholder"><span>＋</span> Chọn ảnh</span></label>
+                  <div id="image-meta-2" class="image-meta">PNG, JPG hoặc WebP</div>
+                </div>
+                <div class="image-card">
+                  <div class="image-card-head"><span class="image-index">III</span><div><h3>Bối cảnh</h3><p>Không gian / ánh sáng</p></div><span class="node-pill">Nút <b id="node-3">30</b></span></div>
+                  <label class="image-drop" for="image-3"><input id="image-3" type="file" accept="image/png,image/jpeg,image/webp" /><img id="preview-3" alt="Xem trước ảnh bối cảnh" hidden /><span id="image-label-3" class="image-placeholder"><span>＋</span> Chọn ảnh</span></label>
+                  <div id="image-meta-3" class="image-meta">PNG, JPG hoặc WebP</div>
+                </div>
+              </div>
+              <div class="notice"><span class="notice-mark">i</span><p><strong>Video và âm thanh tham chiếu:</strong> worker hiện tại chưa có đường tải hai loại tệp này từ request. Hãy ngắt hai nhánh đó trong ComfyUI trước khi Export (API).</p></div>
+            </section>
+
+            <div class="submit-bar"><div><span class="submit-kicker">SẴN SÀNG GỬI</span><p>Timeout mỗi job: 20 phút · gửi bất đồng bộ</p></div><button id="submit-button" class="primary-button" type="submit">Gửi request <span aria-hidden="true">↗</span></button></div>
+          </form>
+
+          <aside class="side-panel">
+            <div class="panel job-panel">
+              <div class="panel-kicker">LIVE JOB TRACKER <span class="pulse"></span></div>
+              <h2>Tiến trình</h2>
+              <p id="status-description" class="status-description">Sau khi gửi request, trạng thái job sẽ xuất hiện ở đây.</p>
+              <div class="progress-track"><span id="progress-fill"></span></div>
+              <div class="status-list">
+                <div class="status-item" data-step="submitted"><span class="status-icon">1</span><div><b>Đã gửi</b><small>Runpod nhận request</small></div></div>
+                <div class="status-item" data-step="queued"><span class="status-icon">2</span><div><b>Trong hàng đợi</b><small>Chờ worker sẵn sàng</small></div></div>
+                <div class="status-item" data-step="running"><span class="status-icon">3</span><div><b>Đang tạo video</b><small>Worker xử lý workflow</small></div></div>
+                <div class="status-item" data-step="completed"><span class="status-icon">4</span><div><b>Hoàn tất</b><small>Xem hoặc tải kết quả</small></div></div>
+              </div>
+              <div id="job-info" class="job-info" hidden><span>JOB ID</span><code id="job-id"></code><button id="copy-id" type="button" class="text-button">Sao chép</button></div>
+              <div id="job-error" class="error-box" hidden></div>
+              <div id="result" class="result" hidden><div class="result-title">VIDEO ĐÃ TẠO</div><video id="result-video" controls playsinline hidden></video><a id="download-video" class="download-button" href="#" download>Tải video MP4 ↓</a><p id="result-note"></p></div>
+            </div>
+            <div class="aside-note"><span class="aside-note-line"></span><p>Giữ tab này mở khi job đang chạy. Bạn có thể dùng Job ID để xem lại trạng thái trên Runpod.</p></div>
+          </aside>
+        </div>
+      </main>
+
+      <footer><span>MINIMAX H3 CINEMATIC STUDIO</span><span>Giao diện chạy trên máy bạn · Endpoint xjh0wwhkto13ky</span></footer>
+    </div>
+  </body>
+</html>
