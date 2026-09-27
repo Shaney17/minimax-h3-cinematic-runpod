@@ -27,6 +27,10 @@ three image references. It passed static link checks, but has **not yet passed
 runtime validation**: on 2026-09-27 a smoke job failed before workflow validation
 because ComfyUI inside endpoint `xjh0wwhkto13ky` was not reachable on port 8188.
 Inspect and fix worker startup before relying on this graph for production jobs.
+The next image build captures the ComfyUI startup output in
+`/tmp/h3-worker.log`; when the API is unreachable, the job response includes
+`startup_log_tail` to identify the actual startup error. This diagnostic
+requires rebuilding the Runpod image from the latest GitHub commit.
 
 Click **Gửi request**. The interface submits an asynchronous job, checks its
 status, and displays a returned MP4 or S3 URL. Each request has a 20-minute
