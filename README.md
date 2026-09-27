@@ -28,7 +28,7 @@ job is processing, or save the Job ID to check it in Runpod.
 
 The current worker supports image uploads only. Disconnect the video and audio
 reference branches in ComfyUI before exporting API JSON; the interface rejects
-exports that still contain active VHS video/audio loader nodes. A request over
+exports that still connect video/audio references to MiniMax H3. A request over
 9.5 MB is stopped locally with a message to reduce image file size. For an MP4
 larger than 8 MB, configure the worker's S3 output settings as described below.
 
