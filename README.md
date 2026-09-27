@@ -3,6 +3,38 @@
 This repository builds a dedicated queue worker for the supplied MiniMax H3
 Cinematic ComfyUI workflow. It is separate from the Qwen Image endpoint.
 
+## Local request interface
+
+Run the included interface with Python 3.10 or newer; no packages are required:
+
+```bash
+python3 web_ui.py
+```
+
+Open `http://127.0.0.1:8765` and provide:
+
+1. A Runpod API key. It stays in the browser tab and is forwarded by the local
+   server to the fixed endpoint `xjh0wwhkto13ky`; it is not written to disk.
+2. A **ComfyUI Export (API)** JSON for this workflow. The included
+   `workflow/cinematic_ui.json` is a UI graph and cannot be submitted directly.
+3. The three reference images for LoadImage nodes 28 (subject 1), 29 (subject 2),
+   and 30 (environment). The interface uploads them as Base64 files and updates
+   those node filenames automatically.
+
+Click **Gửi request**. The interface submits an asynchronous job, checks its
+status, and displays a returned MP4 or S3 URL. Each request has a 20-minute
+execution timeout and a 1-hour total TTL. Keep the browser tab open while the
+job is processing, or save the Job ID to check it in Runpod.
+
+The current worker supports image uploads only. Disconnect the video and audio
+reference branches in ComfyUI before exporting API JSON; the interface rejects
+exports that still contain active VHS video/audio loader nodes. A request over
+9.5 MB is stopped locally with a message to reduce image file size. For an MP4
+larger than 8 MB, configure the worker's S3 output settings as described below.
+
+The interface binds to `127.0.0.1` only. It does not host a public website or
+store your API key, images, workflow, or generated video on the local server.
+
 ## What is included
 
 - Official `runpod/worker-comfyui:5.10.0-base` worker, upgraded to ComfyUI v0.37.0.
@@ -19,9 +51,9 @@ Cinematic ComfyUI workflow. It is separate from the Qwen Image endpoint.
 The included workflow is a **ComfyUI UI graph**. For API calls, open it in the
 deployed ComfyUI version and export **Workflow > Export (API)**. Send the exported
 object as `input.workflow` to the Runpod endpoint. The original graph references
-three input PNGs and has media-reference nodes; provide the corresponding files
-and update those node inputs before requesting generation. The JSON alone does
-not contain those media files.
+three input PNGs and has media-reference nodes. The JSON alone does not contain
+those files. The local interface handles the images; disconnect the video/audio
+references until the worker gains a media-upload path.
 
 The handler returns an MP4 as base64 only when its file is at most 8 MB. For
 larger videos, configure Runpod's S3 output settings (`BUCKET_ENDPOINT_URL`,
