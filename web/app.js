@@ -66,10 +66,11 @@ function validateWorkflow(graph) {
       throw new Error(`Không tìm thấy nút LoadImage ${id}. Hãy Export (API) từ workflow Cinematic đã cung cấp.`);
     }
   }
-  const mediaNodes = Object.values(graph).filter((node) =>
-    ["VHS_LoadVideo", "VHS_LoadAudioUpload"].includes(node?.class_type)
+  const referenceNode = Object.values(graph).find((node) => node?.class_type === "MiniMaxH3ReferenceToVideo");
+  const connectedMedia = Object.entries(referenceNode?.inputs || {}).some(([name, value]) =>
+    /^(ref_videos\.|ref_audios\.|ref_video_audios\.)/.test(name) && Array.isArray(value)
   );
-  if (mediaNodes.length) {
+  if (connectedMedia) {
     throw new Error("Bản API còn nút tải video/âm thanh. Worker hiện chưa nhận các tệp này qua request; hãy ngắt các nhánh tham chiếu đó trong ComfyUI và Export (API) lại.");
   }
 }
