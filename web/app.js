@@ -58,14 +58,14 @@ function resetResult() {
 
 function validateWorkflow(graph) {
   if (!graph || Array.isArray(graph) || typeof graph !== "object") {
-    throw new Error("Tệp JSON không phải workflow API hợp lệ.");
+    throw new Error("Workflow API cài sẵn không hợp lệ.");
   }
   if (Array.isArray(graph.nodes) && Array.isArray(graph.links)) {
-    throw new Error("Đây là workflow giao diện. Hãy mở trong ComfyUI rồi chọn Export (API).");
+    throw new Error("Workflow cài sẵn vẫn là định dạng giao diện.");
   }
   for (const id of NODE_IDS) {
     if (graph[id]?.class_type !== "LoadImage" || !graph[id].inputs) {
-      throw new Error(`Không tìm thấy nút LoadImage ${id}. Hãy Export (API) từ workflow Cinematic đã cung cấp.`);
+      throw new Error(`Không tìm thấy nút LoadImage ${id} trong workflow cài sẵn.`);
     }
   }
   if (graph["190"]?.class_type !== "PrimitiveStringMultiline" || !graph["190"].inputs) {
@@ -76,29 +76,30 @@ function validateWorkflow(graph) {
     /^(ref_videos\.|ref_audios\.|ref_video_audios\.)/.test(name) && Array.isArray(value)
   );
   if (connectedMedia) {
-    throw new Error("Bản API còn nút tải video/âm thanh. Worker hiện chưa nhận các tệp này qua request; hãy ngắt các nhánh tham chiếu đó trong ComfyUI và Export (API) lại.");
+    throw new Error("Workflow cài sẵn còn nhánh tải video/âm thanh tham chiếu không được hỗ trợ.");
   }
 }
 
-async function loadWorkflow(file) {
+async function loadBundledWorkflow() {
   state.workflow = null;
   state.workflowName = "";
   workflowAlert("");
-  $("workflow-title").textContent = "Chọn tệp workflow API";
-  $("workflow-detail").textContent = ".json · các nút LoadImage sẽ được nhận diện tự động";
-  if (!file) return;
+  $("workflow-title").textContent = "Đang tải workflow…";
   try {
-    const graph = JSON.parse(await file.text());
+    const response = await fetch("/api/workflow");
+    if (!response.ok) throw new Error("Không tải được workflow API cài sẵn.");
+    const graph = await response.json();
     validateWorkflow(graph);
     state.workflow = graph;
-    state.workflowName = file.name;
-    $("workflow-title").textContent = file.name;
+    state.workflowName = "Cinematic · 3 ảnh";
+    $("workflow-title").textContent = state.workflowName;
     $("workflow-detail").textContent = `${Object.keys(graph).length} nút · ảnh sẽ gắn vào nút 28, 29, 30`;
     if (!state.promptTouched && typeof graph["190"].inputs.value === "string") {
       $("prompt-text").value = graph["190"].inputs.value;
       updatePromptCount();
     }
   } catch (error) {
+    $("workflow-title").textContent = "Chưa tải được workflow";
     workflowAlert(error.message || "Không đọc được workflow.");
   }
 }
@@ -239,7 +240,7 @@ async function submit(event) {
   resetResult();
   if (state.timer) clearTimeout(state.timer);
   if (!$("api-key").value.trim()) return showError("Hãy nhập Runpod API key.");
-  if (!state.workflow) return showError("Hãy chọn workflow API hợp lệ.");
+  if (!state.workflow) return showError("Workflow API chưa tải được. Hãy tải lại trang.");
   $("submit-button").disabled = true;
   $("job-info").hidden = true;
   state.jobId = null;
@@ -260,7 +261,7 @@ async function submit(event) {
 }
 
 $("request-form").addEventListener("submit", submit);
-$("workflow-file").addEventListener("change", (event) => loadWorkflow(event.target.files[0]));
+loadBundledWorkflow();
 for (let index = 1; index <= 3; index++) {
   $(`image-${index}`).addEventListener("change", (event) => previewImage(index, event.target.files[0]));
 }
