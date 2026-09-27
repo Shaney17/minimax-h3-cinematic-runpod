@@ -52,6 +52,15 @@ for rel, minimum in minimums.items():
     print(rel, actual)
 PY
 
+# The base worker starts with /opt/venv/bin/python. Comfy CLI also creates
+# /comfyui/.venv, so target the runtime interpreter explicitly here.
+RUN uv pip install --python /opt/venv/bin/python -r /comfyui/requirements.txt \
+    && for req in /comfyui/custom_nodes/*/requirements.txt; do \
+         if [ -f "$req" ]; then uv pip install --python /opt/venv/bin/python -r "$req"; fi; \
+       done \
+    && uv pip install --python /opt/venv/bin/python 'transformers>=4.50.3,<5' 'huggingface-hub<1.0' \
+    && /opt/venv/bin/python -c "import comfy_aimdo.storage"
+
 WORKDIR /
 RUN cp /handler.py /handler_base.py
 COPY handler.py /handler.py
