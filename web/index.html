@@ -18,7 +18,7 @@
         <section class="intro">
           <div class="eyebrow">CINEMATIC WORKFLOW <span class="eyebrow-line"></span> THREE REFERENCES</div>
           <h1>Biến những khung hình<br /><em>thành câu chuyện.</em></h1>
-          <p>Chọn bản workflow API đã xuất, nhập prompt và ba ảnh tham chiếu. Giao diện sẽ gửi request đến worker Runpod và theo dõi video cho bạn.</p>
+          <p>Nhập prompt và ba ảnh tham chiếu. Workflow đã được cài sẵn; giao diện sẽ gửi request đến worker Runpod và theo dõi video cho bạn.</p>
         </section>
 
         <div class="workspace">
@@ -33,13 +33,12 @@
             </section>
 
             <section class="step">
-              <div class="step-head"><span class="step-number">02</span><div><h2>Workflow API</h2><p>Chọn bản <strong>Export (API)</strong> từ ComfyUI. Đây là bước thiết lập mẫu chạy cho worker.</p></div></div>
-              <label class="dropzone workflow-zone" for="workflow-file">
-                <input id="workflow-file" type="file" accept=".json,application/json" />
+              <div class="step-head"><span class="step-number">02</span><div><h2>Workflow API</h2><p>Bản chạy ba ảnh tham chiếu được tải sẵn từ ứng dụng.</p></div></div>
+              <div class="dropzone workflow-zone">
                 <span class="upload-icon">{ }</span>
-                <span class="drop-text"><b id="workflow-title">Chọn tệp workflow API</b><small id="workflow-detail">.json · các nút LoadImage sẽ được nhận diện tự động</small></span>
-                <span class="browse">Chọn tệp</span>
-              </label>
+                <span class="drop-text"><b id="workflow-title">Đang tải workflow…</b><small id="workflow-detail">Bản Cinematic dùng ảnh tham chiếu</small></span>
+                <span class="browse">Cài sẵn</span>
+              </div>
               <div id="workflow-alert" class="inline-alert" hidden></div>
             </section>
 
@@ -71,7 +70,7 @@
                   <div id="image-meta-3" class="image-meta">PNG, JPG hoặc WebP</div>
                 </div>
               </div>
-              <div class="notice"><span class="notice-mark">i</span><p><strong>Video và âm thanh tham chiếu:</strong> worker hiện tại chưa có đường tải hai loại tệp này từ request. Hãy ngắt hai nhánh đó trong ComfyUI trước khi Export (API).</p></div>
+              <div class="notice"><span class="notice-mark">i</span><p><strong>Ảnh tham chiếu:</strong> phiên bản này dùng ba ảnh. Các nhánh tải video và âm thanh tham chiếu của workflow gốc đã được ngắt vì worker chưa nhận hai loại tệp đó qua request.</p></div>
             </section>
 
             <div class="submit-bar"><div><span class="submit-kicker">SẴN SÀNG GỬI</span><p>Timeout mỗi job: 20 phút · gửi bất đồng bộ</p></div><button id="submit-button" class="primary-button" type="submit">Gửi request <span aria-hidden="true">↗</span></button></div>
