@@ -56,6 +56,7 @@ WORKDIR /
 RUN cp /handler.py /handler_base.py
 COPY handler.py /handler.py
 COPY workflow/cinematic_ui.json /workflows/cinematic_ui.json
+COPY workflow/cinematic_api.json /workflows/cinematic_api.json
 COPY start_h3.sh /start_h3.sh
 RUN chmod 755 /start_h3.sh
 ENV COMFY_LOG_LEVEL=INFO
