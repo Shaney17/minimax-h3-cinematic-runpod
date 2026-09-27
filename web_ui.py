@@ -25,6 +25,7 @@ STATIC_FILES = {
     "/style.css": ("style.css", "text/css; charset=utf-8"),
 }
 UI_WORKFLOW = Path(__file__).resolve().parent / "workflow" / "cinematic_ui.json"
+API_WORKFLOW = Path(__file__).resolve().parent / "workflow" / "cinematic_api.json"
 JOB_ID = re.compile(r"^[A-Za-z0-9_-]{1,120}$")
 
 
@@ -95,6 +96,16 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self._json(500, {"error": f"Không đọc được prompt gốc: {exc}"})
                 return
             self._json(200, {"prompt": prompt})
+            return
+        if path == "/api/workflow":
+            try:
+                graph = json.loads(API_WORKFLOW.read_text(encoding="utf-8"))
+                if not isinstance(graph, dict) or graph.get("121", {}).get("class_type") != "MiniMaxH3ReferenceToVideo":
+                    raise ValueError("Workflow API mặc định không hợp lệ.")
+            except (OSError, ValueError, KeyError) as exc:
+                self._json(500, {"error": f"Không đọc được workflow API: {exc}"})
+                return
+            self._json(200, graph)
             return
         if path == "/api/health":
             key = self._key()
