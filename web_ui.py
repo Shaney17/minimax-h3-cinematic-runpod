@@ -24,6 +24,7 @@ STATIC_FILES = {
     "/app.js": ("app.js", "text/javascript; charset=utf-8"),
     "/style.css": ("style.css", "text/css; charset=utf-8"),
 }
+UI_WORKFLOW = Path(__file__).resolve().parent / "workflow" / "cinematic_ui.json"
 JOB_ID = re.compile(r"^[A-Za-z0-9_-]{1,120}$")
 
 
@@ -82,6 +83,18 @@ class RequestHandler(BaseHTTPRequestHandler):
             return
         if not self._origin_ok():
             self._json(403, {"error": "Nguồn yêu cầu không hợp lệ."})
+            return
+        if path == "/api/default-prompt":
+            try:
+                graph = json.loads(UI_WORKFLOW.read_text(encoding="utf-8"))
+                prompt_node = next(node for node in graph["nodes"] if node["id"] == 190)
+                prompt = prompt_node["widgets_values"][0]
+                if not isinstance(prompt, str):
+                    raise ValueError("Prompt gốc không phải chuỗi.")
+            except (OSError, ValueError, KeyError, IndexError, StopIteration) as exc:
+                self._json(500, {"error": f"Không đọc được prompt gốc: {exc}"})
+                return
+            self._json(200, {"prompt": prompt})
             return
         if path == "/api/health":
             key = self._key()
