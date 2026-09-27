@@ -180,7 +180,10 @@ async function buildRequest() {
 }
 
 function renderVideo(output) {
-  if (output?.error) throw new Error(typeof output.error === "string" ? output.error : JSON.stringify(output.error));
+  if (output?.error) {
+    const message = typeof output.error === "string" ? output.error : JSON.stringify(output.error);
+    throw new Error(output.startup_log_tail ? `${message}\n\nLog khởi động ComfyUI:\n${output.startup_log_tail}` : message);
+  }
   const videos = Array.isArray(output?.videos) ? output.videos : [];
   if (!videos.length) {
     throw new Error("Job hoàn tất nhưng worker không trả video MP4. Hãy xem output và log trên Runpod.");
@@ -222,7 +225,9 @@ async function checkStatus() {
       setProgress("completed", "Worker đã hoàn tất. Video sẵn sàng bên dưới.");
       renderVideo(data.output);
     } else if (TERMINAL_STATES.has(status)) {
-      throw new Error(`${status}: ${typeof data.error === "string" ? data.error : JSON.stringify(data.error || data.output || "Không có chi tiết lỗi.")}`);
+      const error = typeof data.error === "string" ? data.error : JSON.stringify(data.error || data.output || "Không có chi tiết lỗi.");
+      const startupLog = data.output?.startup_log_tail;
+      throw new Error(`${status}: ${error}${startupLog ? `\n\nLog khởi động ComfyUI:\n${startupLog}` : ""}`);
     } else {
       $("status-description").textContent = `Trạng thái Runpod: ${status || "chưa rõ"}`;
     }
