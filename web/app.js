@@ -6,6 +6,8 @@ const TERMINAL_STATES = new Set(["COMPLETED", "FAILED", "CANCELLED", "TIMED_OUT"
 const state = {
   workflow: null,
   workflowName: "",
+  defaultPrompt: "",
+  promptTouched: false,
   jobId: null,
   timer: null,
   previewUrls: [null, null, null],
@@ -66,6 +68,9 @@ function validateWorkflow(graph) {
       throw new Error(`Không tìm thấy nút LoadImage ${id}. Hãy Export (API) từ workflow Cinematic đã cung cấp.`);
     }
   }
+  if (graph["190"]?.class_type !== "PrimitiveStringMultiline" || !graph["190"].inputs) {
+    throw new Error("Không tìm thấy nút prompt 190 trong workflow API Cinematic.");
+  }
   const referenceNode = Object.values(graph).find((node) => node?.class_type === "MiniMaxH3ReferenceToVideo");
   const connectedMedia = Object.entries(referenceNode?.inputs || {}).some(([name, value]) =>
     /^(ref_videos\.|ref_audios\.|ref_video_audios\.)/.test(name) && Array.isArray(value)
@@ -89,6 +94,10 @@ async function loadWorkflow(file) {
     state.workflowName = file.name;
     $("workflow-title").textContent = file.name;
     $("workflow-detail").textContent = `${Object.keys(graph).length} nút · ảnh sẽ gắn vào nút 28, 29, 30`;
+    if (!state.promptTouched && typeof graph["190"].inputs.value === "string") {
+      $("prompt-text").value = graph["190"].inputs.value;
+      updatePromptCount();
+    }
   } catch (error) {
     workflowAlert(error.message || "Không đọc được workflow.");
   }
@@ -146,6 +155,9 @@ async function apiRequest(url, options = {}) {
 
 async function buildRequest() {
   const graph = structuredClone(state.workflow);
+  const prompt = $("prompt-text").value.trim();
+  if (!prompt) throw new Error("Hãy nhập prompt video.");
+  graph["190"].inputs.value = prompt;
   const images = [];
   for (let index = 1; index <= 3; index++) {
     const file = $(`image-${index}`).files[0];
@@ -264,3 +276,31 @@ $("copy-id").addEventListener("click", async () => {
   $("copy-id").textContent = "Đã sao chép";
   setTimeout(() => { $("copy-id").textContent = "Sao chép"; }, 2000);
 });
+
+function updatePromptCount() {
+  $("prompt-count").textContent = `${$("prompt-text").value.length.toLocaleString("vi-VN")} ký tự`;
+}
+
+$("prompt-text").addEventListener("input", () => {
+  state.promptTouched = true;
+  updatePromptCount();
+});
+$("reset-prompt").addEventListener("click", () => {
+  if (!state.defaultPrompt) return;
+  $("prompt-text").value = state.defaultPrompt;
+  state.promptTouched = false;
+  updatePromptCount();
+});
+
+fetch("/api/default-prompt")
+  .then((response) => {
+    if (!response.ok) throw new Error("Không tải được prompt gốc.");
+    return response.json();
+  })
+  .then((data) => {
+    state.defaultPrompt = data.prompt || "";
+    if (!state.promptTouched) $("prompt-text").value = state.defaultPrompt;
+    $("prompt-text").placeholder = "Nhập prompt video của bạn…";
+    updatePromptCount();
+  })
+  .catch(() => { $("prompt-text").placeholder = "Nhập prompt video của bạn…"; });
